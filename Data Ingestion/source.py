@@ -14,13 +14,13 @@ import re
 from pyspark.sql.functions import lit, col, max as spark_max
 from config.config import RAW_TARGET , SOURCE
 
-print(f"Reading from: {source}")
+print(f"Reading from: {SOURCE}")
 def source_pipeline(spark):
     dbutils = DBUtils(spark)
-    #self.source = source
+    #self.SOURCE = SOURCE
     # print(s3_path)
     # Use dbutils to list files and find the latest
-    files = dbutils.fs.ls(source)
+    files = dbutils.fs.ls(SOURCE)
     latest_file = sorted(files, key=lambda x: x.modificationTime, reverse=True)[0]
     # 1. Read the full dataset from S3
     df = (
@@ -28,7 +28,7 @@ def source_pipeline(spark):
         .format('csv')
         .option("header", "true")
         .option("inferSchema", "true")
-        .load(source)
+        .load(SOURCE)
     )
 
     print(f"Total rows loaded from S3: {df.count()}")
@@ -40,7 +40,7 @@ def source_pipeline(spark):
     latest_df.display()
 
     # 2. Write the enriched data to the raw destination
-    print(f"Writing to: {raw}")
+    print(f"Writing to: {RAW_TARGET}")
     (
         latest_df.write
         .format("csv")
@@ -48,7 +48,7 @@ def source_pipeline(spark):
         .option("header","true")
         .option("inferSchema","true")
         .option("mergeSchema", "true")
-        .save(raw)
+        .save(RAW_TARGET)
     )
-    print("Data successfully written to raw location")
+    print("Data successfully written to RAW_TARGET location")
 
