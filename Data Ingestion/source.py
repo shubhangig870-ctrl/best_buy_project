@@ -28,7 +28,7 @@ def source_pipeline(spark):
         .format('csv')
         .option("header", "true")
         .option("inferSchema", "true")
-        .load(SOURCE)
+        .load(latest_file.path)
     )
 
     print(f"Total rows loaded from S3: {df.count()}")
